@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rive/rive.dart';
 
 class LoginScreen extends StatefulWidget {
   const new({super.key});
