@@ -11,6 +11,14 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true;
   //oculta los caracteres de la contraseña
+  //crear el cerebro de las animaciones
+  StateMachineController? _controller;
+  //SMI:State machine input: es un tipo de dato que permite controlar la animación
+  SMIBool? _isChecking;
+  SMIBool? _isHandsUp;
+  SMITrigger? _trigSuccess;
+  SMITrigger? _trigFail;
+
   @override
   Widget build(BuildContext context) {
     //PARA OBTENER EL TAMAÑO DE LA PANTALLA
@@ -24,14 +32,43 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 height: 200,
                 width: Size.width,
-                child: RiveAnimation.asset('assets/login_bear.riv'),
+                child: RiveAnimation.asset(
+                  'login_bear.riv',
+                  stateMachines: ['Login Machine'],
+                  //al iniciar la animación, se ejecuta el callback onInit
+                  onInit: (artboard) {
+                    _controller = StateMachineController.fromArtboard(
+                      artboard,
+                      'Login Machine',
+                    );
+                    //verificar que todo inicio correctamente
+                    if (_controller == null) return;
+                    //agregar el controlador al tablero de animación
+                    artboard.addController(_controller!);
+                    //vincular las variables de la máquina de estados con las variables de la clase
+                    _isChecking = _controller?.findSMI('isChecking');
+                    _isHandsUp = _controller?.findSMI('isHandsUp');
+                    _trigSuccess = _controller?.findSMI('trigSuccess');
+                    _trigFail = _controller?.findSMI('trigFail');
+                  },
+                ),
               ),
 
               //PARA SEPARAR WIDGETS
               SizedBox(height: 20),
               //campo de texto para email
               TextField(
-                //pARA MSTRAR UN TIPO DE TECLADO
+                onChanged: (value) {
+                  if (_isHandsUp != null) {
+                    //No se tapa los ojos
+                    _isHandsUp?.change(false);
+                  }
+                  //si isChecking es nulo
+                  if (_isChecking == null) return;
+                  //modo chismoso
+                  _isChecking?.change(true);
+                },
+                //PARA MSTRAR UN TIPO DE TECLADO
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   hintText: 'Email',
@@ -41,10 +78,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
+
               SizedBox(height: 10),
               //campo de texto para contraseña
               TextField(
-                //pARA MSTRAR UN TIPO DE TECLADO
+                onChanged: (value) {
+                  if (_isHandsUp != null) {
+                    //No se tapa los ojos
+                    _isHandsUp?.change(true);
+                  }
+                  //si isChecking es nulo
+                  if (_isChecking == null) return;
+                  //modo chismoso
+                  _isChecking?.change(true);
+                },
+                //PARA MSTRAR UN TIPO DE TECLADO
                 obscureText: _obscureText,
                 decoration: InputDecoration(
                   hintText: 'Password',
