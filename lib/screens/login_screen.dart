@@ -19,6 +19,27 @@ class _LoginScreenState extends State<LoginScreen> {
   SMITrigger? _trigSuccess;
   SMITrigger? _trigFail;
 
+  //1.1 crear variables para fucusNode
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    //1.2 agregar listener a los focusNode
+    _emailFocusNode.addListener(() {
+      if (_emailFocusNode.hasFocus) {
+        if (_isHandsUp != null) {
+          //No se tapa los ojos
+          _isHandsUp?.change(false);
+        }
+      }
+    });
+    _passwordFocusNode.addListener(() {
+      _isHandsUp?.change(_passwordFocusNode.hasFocus);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     //PARA OBTENER EL TAMAÑO DE LA PANTALLA
@@ -58,10 +79,11 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: 20),
               //campo de texto para email
               TextField(
+                focusNode: _emailFocusNode,
                 onChanged: (value) {
                   if (_isHandsUp != null) {
                     //No se tapa los ojos
-                    _isHandsUp?.change(false);
+                    //_isHandsUp?.change(false);
                   }
                   //si isChecking es nulo
                   if (_isChecking == null) return;
@@ -82,6 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: 10),
               //campo de texto para contraseña
               TextField(
+                focusNode: _passwordFocusNode,
                 onChanged: (value) {
                   if (_isHandsUp != null) {
                     //No se tapa los ojos
@@ -90,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   //si isChecking es nulo
                   if (_isChecking == null) return;
                   //modo chismoso
-                  _isChecking?.change(true);
+                  // _isChecking?.change(true);
                 },
                 //PARA MSTRAR UN TIPO DE TECLADO
                 obscureText: _obscureText,
@@ -117,5 +140,13 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    //1.4 libererar los focusNode cuando se destruye el widget
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    super.dispose();
   }
 }
